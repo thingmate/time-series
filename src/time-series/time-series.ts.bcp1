@@ -1,0 +1,119 @@
+import { DatabaseSync, type StatementSync } from 'node:sqlite';
+
+export type TimeSeriesTypeEntry<GName extends string, GType> = readonly [name: GName, type: GType];
+
+export type TimeSeriesTypesMap =
+  | TimeSeriesTypeEntry<'int64', number>
+  | TimeSeriesTypeEntry<'float64', number>
+  | TimeSeriesTypeEntry<'text', string>
+  | TimeSeriesTypeEntry<'any', any>;
+
+export type TimeSeriesTypeName = TimeSeriesTypesMap[0];
+
+export type InferTimeSeriesType<GTypeName extends TimeSeriesTypeName> = Extract<
+  TimeSeriesTypesMap,
+  TimeSeriesTypeEntry<GTypeName, any>
+>[1];
+
+// export type TimeSeriesEntry<GTypeName extends TimeSeriesTypeName> = readonly [
+//   time: number,
+//   value: InferTimeSeriesType<GTypeName>,
+// ];
+
+export interface TimeSeriesEntry<GTypeName extends TimeSeriesTypeName> {
+  readonly time: number;
+  readonly value: InferTimeSeriesType<GTypeName>;
+}
+
+const TIME_SERIES_TYPE_NAME_TO_SQLITE_TYPE_MAP: Record<TimeSeriesTypeName, string> = {
+  int64: 'INTEGER',
+  float64: 'REAL',
+  text: 'TEXT',
+  any: 'ANY',
+};
+
+export interface TimeSeriesSelectOptions {
+  readonly from?: number;
+  readonly to?: number;
+  readonly limit?: number;
+}
+
+export class TimeSeries<GTypeName extends TimeSeriesTypeName> implements Disposable {
+  readonly #db: DatabaseSync;
+  readonly #typeName: GTypeName;
+
+  constructor(path: string, typeName: GTypeName) {
+    this.#db = new DatabaseSync(path);
+    this.#typeName = typeName;
+
+    this.drop();
+
+    this.#db.exec(`
+      CREATE TABLE IF NOT EXISTS data(
+        time INTEGER NOT NULL PRIMARY KEY,
+        value ${TIME_SERIES_TYPE_NAME_TO_SQLITE_TYPE_MAP[this.#typeName]} NOT NULL
+      )  STRICT, WITHOUT ROWID
+    `);
+  }
+
+  drop(): void {
+    this.#db.exec(`
+      DROP TABLE IF EXISTS data;
+    `);
+  }
+
+  push(time: number, value: InferTimeSeriesType<GTypeName>): void {
+    this.insert([[time, value]]);
+  }
+
+  insert(entries: Iterable<TimeSeriesEntry<GTypeName>>): void {
+    const insert: StatementSync = this.#db.prepare('INSERT INTO data (time, value) VALUES (?, ?)');
+
+    for (const entry of entries) {
+      insert.run(entry[0], entry[1]);
+    }
+  }
+
+  select({
+    from = Number.NEGATIVE_INFINITY,
+    to = Number.POSITIVE_INFINITY,
+    limit = Number.POSITIVE_INFINITY,
+  }: TimeSeriesSelectOptions = {}): InferTimeSeriesType<GTypeName> {
+    throw 'TODO';
+  }
+
+  [Symbol.dispose](): void {
+    return this.#db[Symbol.dispose]();
+  }
+}
+
+/*--------*/
+
+// https://github.com/pastgift/sqlstring-sqlite-js/blob/master/lib/SqlString.js#L189
+// https://github.com/mysqljs/sqlstring/blob/master/lib/SqlString.js
+// var CHARS_GLOBAL_REGEXP = /[']/g;
+// var CHARS_ESCAPE_MAP    = {
+//   '\'': '\'\'',
+// };
+//
+// function escapeString(val) {
+//   var chunkIndex = CHARS_GLOBAL_REGEXP.lastIndex = 0;
+//   var escapedVal = '';
+//   var match;
+//
+//   while ((match = CHARS_GLOBAL_REGEXP.exec(val))) {
+//     escapedVal += val.slice(chunkIndex, match.index) + CHARS_ESCAPE_MAP[match[0]];
+//     chunkIndex = CHARS_GLOBAL_REGEXP.lastIndex;
+//   }
+//
+//   if (chunkIndex === 0) {
+//     // Nothing was escaped
+//     return "'" + val + "'";
+//   }
+//
+//   if (chunkIndex < val.length) {
+//     return "'" + escapedVal + val.slice(chunkIndex) + "'";
+//   }
+//
+//   return "'" + escapedVal + "'";
+// }

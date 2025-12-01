@@ -1,0 +1,27 @@
+export type LinesOrString = string | Lines;
+
+export class Lines {
+  readonly lines: string[];
+
+  constructor(lines: readonly LinesOrString[]) {
+    this.lines = [];
+    for (let i: number = 0; i < lines.length; i += 1) {
+      const line: LinesOrString = lines[i];
+      if (typeof line === 'string') {
+        this.lines.push(line);
+      } else {
+        this.lines.push(...line.lines);
+      }
+    }
+  }
+
+  toString(separator: string = '\n'): string {
+    return this.lines.join(separator);
+  }
+}
+
+export function lines(lines: readonly LinesOrString[]): Lines {
+  return new Lines(lines);
+}
+
+const query = lines(['SELECT *', lines(['FROM data']), lines(['WHERE'])]);
