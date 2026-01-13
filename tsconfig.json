@@ -3,9 +3,16 @@
     /* Build */
     "target": "ESNext",
     "module": "NodeNext",
-    "lib": ["ESNext", "DOM"],
-    "types": ["node"],
-    "typeRoots": ["node_modules/@types"],
+    "lib": [
+      "ESNext",
+      "DOM"
+    ],
+    "types": [
+      "node"
+    ],
+    "typeRoots": [
+      "node_modules/@types"
+    ],
     "useDefineForClassFields": true,
     "skipLibCheck": true,
     "declaration": false,
@@ -19,17 +26,21 @@
     "resolveJsonModule": true,
     "sourceMap": true,
     "stripInternal": false,
-    "preserveConstEnums": false,
+    "preserveConstEnums": true,
     "alwaysStrict": true,
 
     /* Mode */
     "esModuleInterop": true,
     "moduleResolution": "NodeNext",
-    "allowImportingTsExtensions": true,
     "isolatedModules": false,
     "moduleDetection": "force",
     "noEmit": false,
+
+    /* Import */
+    "allowImportingTsExtensions": true,
     "allowSyntheticDefaultImports": true,
+    "rewriteRelativeImportExtensions": true,
+    "verbatimModuleSyntax": true,
 
     /* Linting */
     "strict": true,
@@ -49,7 +60,10 @@
     "noPropertyAccessFromIndexSignature": true,
     "strictFunctionTypes": true,
     "strictNullChecks": true,
-    "strictPropertyInitialization": true
+    "strictPropertyInitialization": true,
+    "erasableSyntaxOnly": true,
   },
-  "include": ["src/**/*.ts"]
+  "include": [
+    "src/**/*.ts"
+  ]
 }

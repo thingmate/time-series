@@ -14,7 +14,7 @@ https://thingspeak.com/channels/206644/feed.json?results=100
  */
 
 async function main(): Promise<void> {
-  // await debugQxBucket();
+  // await debugZekta();
   await debugServer();
 }
 

@@ -1,5 +1,3 @@
-export function aggregateNumberTimeSeries() {}
-
 // aggregate(
 //   options: TimeSeriesAggregateOptions,
 //   aggregator: TimeSeriesAggregator<GValue>,
