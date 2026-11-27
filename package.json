@@ -1,6 +1,6 @@
 {
   "name": "@thingmate/time-series",
-  "version": "0.1.1",
+  "version": "1.0.0",
   "type": "module",
   "description": "Abstract data structures and classes for time series data",
   "keywords": [
