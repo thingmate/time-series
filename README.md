@@ -172,6 +172,22 @@ await timeSeries.drop();
 }
 ```
 
+### Abilities
+
+Each capability is also exposed as a single-method `Having*` interface, all exported from the
+package root, so implementations can be typed on the exact subset they support. `TimeSeries`
+implements them all through the aggregate `HavingTimeSeriesAbilities<GValue>` interface, which
+extends `AsyncDisposable`.
+
+| Ability                                 | Method              |
+| --------------------------------------- | ------------------- |
+| `HavingTimeSeriesPushAbility<GValue>`   | `push(time, value)` |
+| `HavingTimeSeriesInsertAbility<GValue>` | `insert(entries)`   |
+| `HavingTimeSeriesSelectAbility<GValue>` | `select(options?)`  |
+| `HavingTimeSeriesDeleteAbility`         | `delete(options?)`  |
+| `HavingTimeSeriesDropAbility`           | `drop()`            |
+| `HavingTimeSeriesFlushAbility`          | `flush()`           |
+
 ### Entries and time ranges
 
 ```ts
