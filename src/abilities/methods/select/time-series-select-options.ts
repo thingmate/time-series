@@ -1,4 +1,4 @@
-import { type PartialTimeSeriesTimeRange } from '../../time-range/partial-time-series-time-range.ts';
+import type { PartialTimeSeriesTimeRange } from '../../types/time-range/partial-time-series-time-range.ts';
 
 /**
  * Represents the available options for selecting a time series.
