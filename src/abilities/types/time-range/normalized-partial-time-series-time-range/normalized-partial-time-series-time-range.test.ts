@@ -55,14 +55,14 @@ describe('normalizedPartialTimeSeriesTimeRange', () => {
 
   it('throws when "from" is NaN', () => {
     expect(() => normalizedPartialTimeSeriesTimeRange({ from: Number.NaN })).toThrowError(
-      '"from" must be a number in range [-Infinity, +Infinity[.',
+      '"from" must be a number in range [-Infinity, +Infinity].',
     );
   });
 
   it('throws when "from" is not a number', () => {
     expect(() =>
       normalizedPartialTimeSeriesTimeRange({ from: '10' as unknown as number }),
-    ).toThrowError('"from" must be a number in range [-Infinity, +Infinity[.');
+    ).toThrowError('"from" must be a number in range [-Infinity, +Infinity].');
   });
 
   it('throws when "to" is NaN', () => {

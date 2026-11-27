@@ -172,6 +172,22 @@ await timeSeries.drop();
 }
 ```
 
+### Abilities
+
+Each capability is also exposed as a single-method `Having*` interface, all exported from the
+package root, so implementations can be typed on the exact subset they support. `TimeSeries`
+implements them all through the aggregate `HavingTimeSeriesAbilities<GValue>` interface, which
+extends `AsyncDisposable`.
+
+| Ability                                 | Method              |
+| --------------------------------------- | ------------------- |
+| `HavingTimeSeriesPushAbility<GValue>`   | `push(time, value)` |
+| `HavingTimeSeriesInsertAbility<GValue>` | `insert(entries)`   |
+| `HavingTimeSeriesSelectAbility<GValue>` | `select(options?)`  |
+| `HavingTimeSeriesDeleteAbility`         | `delete(options?)`  |
+| `HavingTimeSeriesDropAbility`           | `drop()`            |
+| `HavingTimeSeriesFlushAbility`          | `flush()`           |
+
 ### Entries and time ranges
 
 ```ts
@@ -226,12 +242,12 @@ interface TimeSeriesSelectOptions extends Partial<TimeSeriesTimeRange> {
 /**
  * Represents the available options for deleting a range of data points within a time series.
  *
- * This interface extends partial time range capabilities.
+ * This type extends partial time range capabilities.
  *
  * - `from` (optional, default: `Number.NEGATIVE_INFINITY`): specifies the starting point of the range.
  * - `to` (optional, default: `Number.POSITIVE_INFINITY`): specifies the endpoint (included) of the range.
  */
-interface TimeSeriesDeleteOptions extends Partial<TimeSeriesTimeRange> {}
+type TimeSeriesDeleteOptions = PartialTimeSeriesTimeRange;
 ```
 
 ### Derivative
