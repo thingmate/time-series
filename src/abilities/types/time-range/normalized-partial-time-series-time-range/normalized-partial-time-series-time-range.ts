@@ -17,7 +17,7 @@ export function normalizedPartialTimeSeriesTimeRange({
   to = Number.POSITIVE_INFINITY,
 }: PartialTimeSeriesTimeRange | undefined = {}): TimeSeriesTimeRange {
   if (typeof from !== 'number' || Number.isNaN(from)) {
-    throw new Error('"from" must be a number in range [-Infinity, +Infinity[.');
+    throw new Error('"from" must be a number in range [-Infinity, +Infinity].');
   }
 
   if (typeof to !== 'number' || Number.isNaN(to) || to < from) {
