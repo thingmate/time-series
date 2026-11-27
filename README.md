@@ -226,12 +226,12 @@ interface TimeSeriesSelectOptions extends Partial<TimeSeriesTimeRange> {
 /**
  * Represents the available options for deleting a range of data points within a time series.
  *
- * This interface extends partial time range capabilities.
+ * This type extends partial time range capabilities.
  *
  * - `from` (optional, default: `Number.NEGATIVE_INFINITY`): specifies the starting point of the range.
  * - `to` (optional, default: `Number.POSITIVE_INFINITY`): specifies the endpoint (included) of the range.
  */
-interface TimeSeriesDeleteOptions extends Partial<TimeSeriesTimeRange> {}
+type TimeSeriesDeleteOptions = PartialTimeSeriesTimeRange;
 ```
 
 ### Derivative
