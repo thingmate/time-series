@@ -1,0 +1,76 @@
+name: Release Packages
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - labeled
+      - unlabeled
+
+concurrency:
+  group: release-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      id-token: write # Required for OIDC
+      contents: write # GITHUB_TOKEN fallback (fork checkouts, API reads): the version bump push uses the release deploy key
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          # the release deploy key lets the job push the version bump commit through the
+          # branch ruleset (on fork pull requests it is unavailable: the run is a dry-run
+          # that never pushes, and checkout falls back to the default token)
+          ssh-key: ${{ secrets.RELEASE_DEPLOY_KEY }}
+
+      - name: Enable Corepack
+        # Node.js >= 25 no longer bundles Corepack
+        run: npm install -g corepack && corepack enable
+
+      - name: Setup Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: '.nvmrc'
+          registry-url: 'https://registry.npmjs.org'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      - name: Release package
+        if: >-
+          github.event_name == 'push' ||
+          (github.event_name == 'pull_request' &&
+           github.event.pull_request.head.repo.full_name == github.repository &&
+           contains(github.event.pull_request.labels.*.name, 'dev'))
+        run: yarn fb:ci:release
+        env:
+          GITHUB_CI_CONFIG: ${{ toJson(github) }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Release package (dry-run for fork PR)
+        if: >-
+          github.event_name == 'pull_request' &&
+          github.event.pull_request.head.repo.full_name != github.repository &&
+          contains(github.event.pull_request.labels.*.name, 'dev')
+        run: yarn fb:ci:release
+        env:
+          GITHUB_CI_CONFIG: ${{ toJson(github) }}
+          GITHUB_TOKEN: '' # fork PR: untrusted code, the dry run needs no changelog links
+          CI_RELEASE_DRY_RUN: 'true'
